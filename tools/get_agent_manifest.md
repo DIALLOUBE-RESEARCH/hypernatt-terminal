@@ -6,7 +6,7 @@
 
 **Free**
 
-## Live MCP surface (4 tools)
+## Live MCP surface (5 tools)
 
 | Tool | Role | Price |
 |------|------|-------|

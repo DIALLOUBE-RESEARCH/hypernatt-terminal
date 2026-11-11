@@ -1,6 +1,6 @@
 ﻿# HyperNatt Terminal — technical reference
 
-Thin pointer. Live MCP is **v2.9.1** with **4 tools**.
+Thin pointer. Live MCP is **v2.10.0** with **5 tools**.
 
 Start here: [quickstart.md](quickstart.md)
 

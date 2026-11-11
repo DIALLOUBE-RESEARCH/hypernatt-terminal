@@ -45,6 +45,7 @@ import { TRIAL_SYMBOLS, terminalTrialPolicy } from "./terminal-trial-policy.mjs"
 import { enrichPaymentRequiredPayload } from "./agent-payment-error.mjs";
 import { registerTerminalSwapTools } from "./mcp-free-tools.mjs";
 import { registerGrowthTools } from "./mcp-growth-tools.mjs";
+import { registerL2ArchiveCatalogTool, L2_ARCHIVE_CATALOG_TOOL } from "./mcp-datasets-tool.mjs";
 import { registerNativeDepthTool } from "./native-depth-public.mjs";
 import { NATIVE_DEPTH_NAMES } from "./native-depth-catalog.mjs";
 import {
@@ -55,7 +56,7 @@ import {
     respondStaleSession,
 } from "./mcp-session-resilience.mjs";
 
-const TERMINAL_VERSION = "2.9.1";
+const TERMINAL_VERSION = "2.10.0";
 
 const M2M_URL = process.env.M2M_SERVICE_URL || "http://m2m-service:8010";
 const INTERNAL_SECRET =
@@ -467,6 +468,7 @@ export function createMcpServer() {
     };
     registerGrowthTools(server, freeCtx);
     registerTerminalSwapTools(server, freeCtx);
+    registerL2ArchiveCatalogTool(server);
     registerNativeDepthTool(server, {
         m2mUrl: M2M_URL, internalSecret: INTERNAL_SECRET,
         pay: processPaidToolPayment,
@@ -651,6 +653,7 @@ export function mountMcpSignalRoutes(app) {
                 "get_agent_manifest",
                 "get_liq_radar",
                 "swap_via_nattswap",
+                L2_ARCHIVE_CATALOG_TOOL,
                 ...NATIVE_DEPTH_NAMES,
             ],
             trial_policy_v2: terminalTrialPolicy(),
@@ -819,7 +822,7 @@ export function mountMcpSignalRoutes(app) {
     });
 
     console.log(
-        `[MCP Terminal] hypernatt-terminal v${TERMINAL_VERSION} — 4 tools`,
+        `[MCP Terminal] hypernatt-terminal v${TERMINAL_VERSION} — 5 tools`,
     );
     console.log(
         `[MCP Terminal] x402 get_liq_radar @ $${LIQ_RADAR_X402.priceUsdc} → ${LIQ_RADAR_X402.payTo}`,

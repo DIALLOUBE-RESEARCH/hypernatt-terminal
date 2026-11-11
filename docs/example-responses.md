@@ -1,7 +1,7 @@
 # Example responses (abbreviated schema illustrations)
 
 Native depth: `get_native_depth` (0.001 USDC). [Guide](native-depth.md).
-Canonical MCP surface: **4 tools** — see the [complete reference](reference.md). The snippet below illustrates radar fields; it is not a complete live response. Native depth fields are documented in [native-depth.md](native-depth.md).
+Canonical MCP surface: **5 tools** — see the [complete reference](reference.md). The snippet below illustrates radar fields; it is not a complete live response. Native depth fields are documented in [native-depth.md](native-depth.md).
 
 ---
 

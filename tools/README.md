@@ -1,6 +1,6 @@
 # Tools index
 
-Per-tool reference for **hypernatt-terminal** MCP **v2.9.1** (4 tools).
+Per-tool reference for **hypernatt-terminal** MCP **v2.10.0** (5 tools).
 
 | Tool | Section | Credits | Doc |
 |------|---------|---------|-----|

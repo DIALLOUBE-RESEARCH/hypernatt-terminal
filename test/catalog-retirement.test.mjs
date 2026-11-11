@@ -39,13 +39,13 @@ it('SDK discovery removes obsolete recommendations and preserves the current SDK
     assert.ok(body.verification.ndatToken.address);
 });
 
-it('the actual HTTP catalog keeps the four Terminal tools', async t => {
+it('the actual HTTP catalog lists the five Terminal tools', async t => {
     const base = await start(t);
     const response = await fetch(`${base}/tools`);
     assert.equal(response.status, 200);
     const body = await response.json();
     assert.deepEqual(body.tools.map(tool => tool.name), [
-        'get_agent_manifest', 'get_liq_radar', 'swap_via_nattswap', 'get_native_depth',
+        'get_agent_manifest', 'get_liq_radar', 'swap_via_nattswap', 'get_native_depth', 'get_l2_archive_catalog',
     ]);
     assert.ok(body.tools.every(tool => tool.path === '/mcp/protocol'));
     assert.equal(body.mcp.streamable_http, '/mcp/protocol');

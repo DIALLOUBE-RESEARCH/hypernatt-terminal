@@ -8,7 +8,7 @@
 
 > Call get_agent_manifest and choose journeys_v1 for my task. Use get_liq_radar for liquidation terrain, get_native_depth for filmed BTC/ETH size feasibility, or swap_via_nattswap for a Li.Fi route. Call only what my task needs.
 
-**Agents:** 4 tools · v2.9.1. **Smithery:** https://smithery.ai/servers/hypernatt/hypernatt-terminal
+**Agents:** 5 tools · v2.10.0. **Smithery:** https://smithery.ai/servers/hypernatt/hypernatt-terminal
 
 **HL agent (read terrain only):** [../examples/hyperliquid/read_terrain.py](../examples/hyperliquid/read_terrain.py) · sovereignty: [agent-hl-sovereignty.md](agent-hl-sovereignty.md)
 

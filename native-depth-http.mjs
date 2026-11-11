@@ -14,6 +14,77 @@ export const httpNativeDepthSchema = nativeDepthSchema.omit({ x_payment: true, a
 const encode = value => Buffer.from(JSON.stringify(value)).toString('base64');
 const errorResult = value => ({ isError: true, structuredContent: value });
 
+/**
+ * F#641 — x402 Bazaar discovery block (shape of @x402/extensions createBodyDiscoveryExtension, POST + JSON body).
+ * Without it the CDP discovery catalog never indexes this route. The body schema mirrors httpNativeDepthSchema.
+ */
+export const NATIVE_DEPTH_EXAMPLE = { symbol: 'ETH', side: 'buy', quantity_base: '0.1', lookback_s: 300 };
+export const NATIVE_DEPTH_BODY_SCHEMA = {
+  properties: {
+    symbol: { type: 'string', enum: ['BTC', 'ETH'], description: 'BTC or ETH only.' },
+    side: { type: 'string', enum: ['buy', 'sell'] },
+    quantity_base: { type: 'string', pattern: '^-?[0-9]+(?:\\.[0-9]+)?$', maxLength: 96, description: 'Size in token base units (BTC or ETH), not USDC.' },
+    lookback_s: { type: 'integer', enum: [30, 300], description: 'Wall history and observed flow window; default 300.' },
+  },
+  required: ['symbol', 'side', 'quantity_base'],
+  additionalProperties: false,
+};
+const NATIVE_DEPTH_OUTPUT_EXAMPLE = {
+  ok: true,
+  product: 'hypernatt_native_depth_v1',
+  result: {
+    schema_version: 'hypernatt_native_depth_v2',
+    agent_readout: '<requested-size coverage, selected view, walls and flow summary>',
+    filled: '<decimal, REF view>', remaining: '<decimal, REF view>',
+    liquidity_map: { views: ['REF', 'M2', 'M5', 'AGG4'] },
+    trade_flow: { window_s: 300 },
+    quality: { stale: false },
+    delivery: { within_age_window: true },
+  },
+};
+export function nativeDepthBazaar() {
+  return {
+    info: {
+      input: { type: 'http', method: 'POST', bodyType: 'json', body: NATIVE_DEPTH_EXAMPLE },
+      output: { type: 'json', example: NATIVE_DEPTH_OUTPUT_EXAMPLE },
+    },
+    schema: {
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      type: 'object',
+      properties: {
+        input: {
+          type: 'object',
+          properties: {
+            type: { type: 'string', const: 'http' },
+            method: { type: 'string', enum: ['POST', 'PUT', 'PATCH'] },
+            bodyType: { type: 'string', enum: ['json', 'form-data', 'text'] },
+            body: { type: 'object', ...NATIVE_DEPTH_BODY_SCHEMA },
+          },
+          required: ['type', 'method', 'bodyType', 'body'],
+          additionalProperties: false,
+        },
+        output: {
+          type: 'object',
+          properties: { type: { type: 'string' }, example: { type: 'object' } },
+          required: ['type'],
+        },
+      },
+      required: ['input'],
+    },
+  };
+}
+
+/** F#641 — paid GET: the same four fields as URL parameters (generic x402 clients default to GET). */
+export function nativeDepthArgsFromQuery(query = {}) {
+  const pick = key => (typeof query[key] === 'string' ? query[key] : undefined);
+  const out = {};
+  for (const key of ['symbol', 'side', 'quantity_base']) if (pick(key) !== undefined) out[key] = pick(key);
+  const lookback = pick('lookback_s');
+  if (lookback !== undefined) out.lookback_s = /^[0-9]+$/.test(lookback) ? Number(lookback) : lookback;
+  for (const key of Object.keys(query)) if (!['symbol', 'side', 'quantity_base', 'lookback_s'].includes(key)) out[key] = query[key];
+  return out;
+}
+
 export function selectHttpPayment(raw, product) {
   const payment = product.parsePaymentHeader(raw);
   if (!payment || typeof payment !== 'object' || Array.isArray(payment) ||
@@ -50,7 +121,8 @@ export function createNativeDepthHttpRouter(ctx, deps = {}) {
     const { mcp_hint: _hint, ...body } = product.buildPaymentRequired(error);
     return { ...body, resource: { url: urlFor(), description, mimeType: 'application/json' },
       accepts: body.accepts.map(r => ({ ...r, amount: String(r.amount ?? r.maxAmountRequired) })),
-      instructions: 'POST the tool arguments as JSON with PAYMENT-SIGNATURE (or X-Payment). HTTP is pay-per-call; MCP trials and credits remain available through the MCP connection.' };
+      extensions: { ...(body.extensions || {}), bazaar: nativeDepthBazaar() },
+      instructions: 'POST the tool arguments as JSON (or GET with the same fields as URL parameters: symbol, side, quantity_base, lookback_s) with PAYMENT-SIGNATURE (or X-Payment). HTTP is pay-per-call; MCP trials and credits remain available through the MCP connection.' };
   };
   const challenge = (res, error) => {
     const body = required(error);
@@ -65,12 +137,12 @@ export function createNativeDepthHttpRouter(ctx, deps = {}) {
     const modern = req.get('PAYMENT-SIGNATURE'); const legacy = req.get('X-Payment');
     if (modern && legacy && modern !== legacy) return res.status(400).json({ error: 'conflicting_payment_headers' });
     const raw = modern || legacy;
-    if (req.method !== 'POST' || !raw) return challenge(res);
+    if (req.method === 'HEAD' || !raw) return challenge(res);
     try { res.locals.httpPayment = selectHttpPayment(raw, product); }
     catch { return challenge(res, 'Invalid payment payload or payment requirements'); }
     next();
   }, express.json({ limit: '1mb' }), async (req, res) => {
-    const parsed = httpNativeDepthSchema.safeParse(req.body);
+    const parsed = httpNativeDepthSchema.safeParse(req.method === 'GET' ? nativeDepthArgsFromQuery(req.query) : req.body);
     if (!parsed.success) return res.status(400).json({ error: 'invalid_arguments', issues: parsed.error.issues.map(i => ({ path: i.path, code: i.code })) });
     const controller = new AbortController();
     const cancel = () => { if (!res.writableEnded) controller.abort(); };

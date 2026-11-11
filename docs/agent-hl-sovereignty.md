@@ -6,7 +6,7 @@ Hyperliquid account.
 
 **Not trade advice. No custody. No vault deposit required.**
 
-MCP v2.9.1 — **4 tools:** [complete catalog](reference.md#mcp-tools-canonical).
+MCP v2.10.0 — **5 tools:** [complete catalog](reference.md#mcp-tools-canonical).
 
 ---
 

@@ -5,6 +5,11 @@ Private monorepo history is separate (see README mirror note).
 
 ## Unreleased
 
+## [2.10.0] - 2026-11-11
+
+- Add `get_l2_archive_catalog` (free, read-only, no arguments): returns the catalog of the sealed historical Hyperliquid L2 archive (BTC, ETH), the same JSON as https://hypernatt.com/api/datasets/catalog.
+- Public catalog is five tools: `get_agent_manifest`, `get_liq_radar`, `swap_via_nattswap`, `get_native_depth`, `get_l2_archive_catalog`.
+
 ## [2.9.1] - 2026-09-18
 
 - Replace the synthetic native-depth source with bounded read-only recorder data.

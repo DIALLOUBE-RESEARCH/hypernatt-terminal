@@ -3,7 +3,7 @@
 [![CI](https://github.com/DIALLOUBERESEARCH/hypernatt-terminal/actions/workflows/ci.yml/badge.svg)](https://github.com/DIALLOUBERESEARCH/hypernatt-terminal/actions/workflows/ci.yml)
 [![Glama](https://glama.ai/mcp/servers/DIALLOUBERESEARCH/hypernatt-terminal/badges/score.svg)](https://glama.ai/mcp/servers/DIALLOUBERESEARCH/hypernatt-terminal)
 [![x402-list](https://x402-list.com/badge/hypernatt-terminal.svg?data=uptime)](https://x402-list.com/services/hypernatt-terminal?utm_source=badge&utm_medium=referral&utm_campaign=embed)
-[![Version](https://img.shields.io/badge/version-2.9.1-green)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.10.0-green)](./CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](./LICENSE)
 [Security notes](./SECURITY.md)
 
@@ -119,7 +119,7 @@ Whitelist `get_liq_radar`: **BTC ETH SOL BNB XRP HYPE ZEC** (omit `symbol` = BTC
 | Predictive Fuel Score / sweep classifier | Distance, size, OI, real liqs — labeled |
 | Custody of keys or funds | Agent signs own txs |
 | Trade advice / guaranteed edge | Read-only JSON context |
-| More than 4 MCP tools | **Exactly 4** · v2.9.1 |
+| More than 5 MCP tools | **Exactly 5** · v2.10.0 |
 | Vault / `/stats` = Terminal P&L | Separate HyperNatt vault product |
 | Independent security audit | Public code + [SECURITY.md](./SECURITY.md) |
 

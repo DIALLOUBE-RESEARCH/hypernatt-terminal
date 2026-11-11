@@ -5,7 +5,7 @@ Optional onboarding skills for agent runtimes (Hermes Agent, OpenClaw via ClawHu
 | Skill | Path | Purpose |
 |-------|------|---------|
 | **hypernatt-liq-radar** | [hypernatt-liq-radar/SKILL.md](hypernatt-liq-radar/SKILL.md) | **Trading-first** — call get_liq_radar before sizing/entering a perp |
-| **hypernatt-terminal** | [hypernatt-terminal/SKILL.md](hypernatt-terminal/SKILL.md) | Full MCP onboarding (4 tools + x402 wallet) |
+| **hypernatt-terminal** | [hypernatt-terminal/SKILL.md](hypernatt-terminal/SKILL.md) | Full MCP onboarding (5 tools + x402 wallet) |
 
 Current journeys: [native depth](../docs/native-depth.md), [liquidation terrain](../docs/agent-liq-radar-loop.md), and [swap](../docs/agent-swap-demo.md).
 

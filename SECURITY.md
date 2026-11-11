@@ -31,7 +31,7 @@ verification is unclear.
 
 ## Surface (truth)
 
-**4 tools · v2.9.1:** `get_agent_manifest` and `swap_via_nattswap` are free at MCP. `get_liq_radar` and `get_native_depth` cost 0.001 USDC or one eligible credit per call after available daily trials. Swap gas and route fees are separate.
+**5 tools · v2.10.0:** `get_agent_manifest` and `swap_via_nattswap` are free at MCP. `get_liq_radar` and `get_native_depth` cost 0.001 USDC or one eligible credit per call after available daily trials. Swap gas and route fees are separate.
 
 Default path: free manifest + pay-per-call. Optional heavy use: Agent Pass
 **$5 for 15,000 credits valid for 30 days** or eligible swap-earned credits, shared across the paid tools (not required). Current programs are in `get_agent_manifest` with `detail=full`.

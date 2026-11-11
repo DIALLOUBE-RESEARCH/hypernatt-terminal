@@ -1,7 +1,7 @@
 ---
 name: hypernatt-terminal
 description: >-
-  Onboarding skill for HyperNatt Terminal remote MCP (exactly 4 tools v2.9.1):
+  Onboarding skill for HyperNatt Terminal remote MCP (exactly 5 tools v2.10.0):
   get_agent_manifest, get_liq_radar, swap_via_nattswap, get_native_depth.
   Docs + call order only - no local exec/shell/files. Read-only market
   microstructure for crypto trading agents. Liquidation radar (7 tokens) and
@@ -48,7 +48,7 @@ metadata:
 **What this skill is:** onboarding text for a **remote** MCP server.
 
 **What this skill is NOT:** a local bot, vault control, or a 14-tool terminal.
-Live surface = **exactly 4 tools - v2.9.1**.
+Live surface = **exactly 5 tools - v2.10.0**.
 
 ## Declared capabilities (honest)
 
@@ -122,5 +122,5 @@ This skill never asks for private keys or scrapes env secrets.
 ## Honest claims
 
 - Not trade advice - no custody - no performance promise
-- Do not advertise more than 4 MCP tools
+- Do not advertise more than 5 MCP tools
 - Vault/platform pages are not Terminal MCP P&L

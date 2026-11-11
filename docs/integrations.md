@@ -2,7 +2,7 @@
 
 How to connect liquidation radar, native BTC/ETH REF depth and a Li.Fi swap playbook to your agent. No custody. Your agent controls execution.
 
-**MCP v2.9.1 — 4 tools:** `get_agent_manifest`, `get_liq_radar`, `swap_via_nattswap`, `get_native_depth`.
+**MCP v2.10.0 — 5 tools:** `get_agent_manifest`, `get_liq_radar`, `swap_via_nattswap`, `get_native_depth`.
 
 [`get_native_depth`](native-depth.md) uses MCP (and HTTP `/api/m2m/native-depth/quote`) and costs
 **$0.001 USDC per call**, with the same credits and x402 rails as the radar.

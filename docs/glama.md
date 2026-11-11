@@ -25,7 +25,7 @@ docker run --rm -p 8011:8011 hypernatt-terminal
 curl -sS http://127.0.0.1:8011/health
 ```
 
-Expected after rebuild: `"version":"2.9.1"`, `"tools":4`, `mcp_sessions_v1` on `GET /health`.
+Expected after rebuild: `"version":"2.10.0"`, `"tools":5`, `mcp_sessions_v1` on `GET /health`.
 
 ## Re-sync after a version update
 
@@ -34,7 +34,7 @@ The repository README and the sandbox's introspected tool catalog are separate.
 1. Publish the reviewed runtime, `public-repo/` documentation and lockfile to the public repository.
 2. In Glama **Repository**, use **Sync Server** and check the reported commit against GitHub.
 3. In **Dockerfile**, inspect the generated configuration, then build/test the intended commit. A metadata sync alone does not prove a successful build or release.
-4. Check build logs, the selected release and its introspected `tools/list`. Current v2.9.1 exposes `get_agent_manifest`, `get_liq_radar`, `swap_via_nattswap`, `get_native_depth`.
+4. Check build logs, the selected release and its introspected `tools/list`. Current v2.10.0 exposes `get_agent_manifest`, `get_liq_radar`, `swap_via_nattswap`, `get_native_depth`.
 
 ## Generated Dockerfile configuration
 

@@ -7,7 +7,7 @@
 
 **Historical diagram scope, MCP v2.7.0 — 3 tools:** `get_agent_manifest`, `get_liq_radar`, `swap_via_nattswap`.
 
-The current **v2.9.1** catalog has **4 tools**: `get_agent_manifest`, `get_liq_radar`,
+The current **v2.10.0** catalog has **5 tools**: `get_agent_manifest`, `get_liq_radar`,
 `swap_via_nattswap`, `get_native_depth`. Native depth is BTC/ETH only; see [native-depth.md](native-depth.md).
 
 ---

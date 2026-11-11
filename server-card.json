@@ -2,8 +2,8 @@
   "serverInfo": {
     "name": "hypernatt-terminal",
     "title": "HyperNatt Terminal - Radar, Native Depth + Swap for AI Agents",
-    "version": "2.9.1",
-    "description": "HyperNatt Terminal: liquidation radar (7 tokens), recorded liquidity, wall history and aggressor flow for BTC and ETH, and Li.Fi cross-chain swap for AI agents. Radar whitelist BTC ETH SOL BNB XRP HYPE ZEC. Native depth is BTC and ETH only. get_native_depth walks the filmed book (REF plus separate aggregated views and recorded history) for a size and reports fill, remaining, four separate liquidity views, fixed-price wall changes and observed aggressor flow over 30s/300s. Read-only data, not a trade signal, no custody or order submission. 4 tools, v2.9.1; call get_agent_manifest first. Radar and native-depth calls cost 0.001 USDC via x402 Base/Solana or eligible credits; manifest and MCP swap quote are free (on-chain swap fees apply). Daily MCP trial: radar 7 tokens + native BTC/ETH = up to 9 independent trials; then 0.001 USDC per call. Read trial_policy_v2 and free_tier_status_v1 on the same MCP connection. A zero daily_cap is the separate credit pool, not the intro allowance. Full platform: https://hypernatt.com. Docs: github.com/DIALLOUBERESEARCH/hypernatt-terminal."
+    "version": "2.10.0",
+    "description": "HyperNatt Terminal: liquidation radar (7 tokens), recorded liquidity, wall history and aggressor flow for BTC and ETH, and Li.Fi cross-chain swap for AI agents, plus a free catalog of the sealed historical L2 archive (get_l2_archive_catalog). Radar whitelist BTC ETH SOL BNB XRP HYPE ZEC. Native depth is BTC and ETH only. get_native_depth walks the filmed book (REF plus separate aggregated views and recorded history) for a size and reports fill, remaining, four separate liquidity views, fixed-price wall changes and observed aggressor flow over 30s/300s. Read-only data, not a trade signal, no custody or order submission. 5 tools, v2.10.0; call get_agent_manifest first. Radar and native-depth calls cost 0.001 USDC via x402 Base/Solana or eligible credits; manifest and MCP swap quote are free (on-chain swap fees apply). Daily MCP trial: radar 7 tokens + native BTC/ETH = up to 9 independent trials; then 0.001 USDC per call. Read trial_policy_v2 and free_tier_status_v1 on the same MCP connection. A zero daily_cap is the separate credit pool, not the intro allowance. Full platform: https://hypernatt.com. Docs: github.com/DIALLOUBERESEARCH/hypernatt-terminal."
   },
   "ecosystem": {
     "homepage": "https://hypernatt.com",
@@ -30,7 +30,7 @@
   "tools": [
     {
       "name": "get_agent_manifest",
-      "description": "Start here (free): 4 tools, prices, daily per-tool/per-token trial status and intent-based journeys. Choose liquidation radar, native BTC/ETH depth or Li.Fi swap. Compact includes arguments; detail=full adds quota/pass/onboarding.",
+      "description": "Start here (free): 5 tools, prices, daily per-tool/per-token trial status and intent-based journeys. Choose liquidation radar, native BTC/ETH depth, Li.Fi swap or the L2 archive catalog. Compact includes arguments; detail=full adds quota/pass/onboarding.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -178,6 +178,15 @@
             "description": "Optional wallet for credits. Never a private key."
           }
         }
+      }
+    },
+    {
+      "name": "get_l2_archive_catalog",
+      "description": "Free, read-only. USE WHEN an agent needs historical raw Hyperliquid L2 order-book data for BTC or ETH: returns the catalog of the sealed archive (coverage, files, SHA-256, free 24h sample under CC BY 4.0, offers, x402 purchase endpoints, terms). Same JSON as https://hypernatt.com/api/datasets/catalog. NOT WHEN the agent needs live market data (use get_liq_radar or get_native_depth). No arguments; no payment; nothing is bought by calling it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
       }
     }
   ],

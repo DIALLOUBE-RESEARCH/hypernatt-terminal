@@ -92,6 +92,7 @@ const MCP_TOOL_NAMES = new Set([
     "get_liq_radar",
     "swap_via_nattswap",
     "get_native_depth",
+    "get_l2_archive_catalog",
 ]);
 
 function terminalToolsFromCard() {

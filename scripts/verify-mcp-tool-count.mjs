@@ -9,20 +9,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 const cardPath = path.join(root, "server-card.json");
 
-const EXPECTED_COUNT = 4;
+const EXPECTED_COUNT = 5;
 const EXPECTED_TOOLS = [
     "get_agent_manifest",
     "get_liq_radar",
     "swap_via_nattswap",
     "get_native_depth",
+    "get_l2_archive_catalog",
 ].sort();
 
 const card = JSON.parse(fs.readFileSync(cardPath, "utf8"));
 const names = (card.tools || []).map((t) => t.name).sort();
 const version = card.serverInfo?.version || "unknown";
 
-if (version !== "2.9.1") {
-    console.error(`[verify-mcp-tool-count] FAIL: version ${version}, expected 2.9.1`);
+if (version !== "2.10.0") {
+    console.error(`[verify-mcp-tool-count] FAIL: version ${version}, expected 2.10.0`);
     process.exit(1);
 }
 

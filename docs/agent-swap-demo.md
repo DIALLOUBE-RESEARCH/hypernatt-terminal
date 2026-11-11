@@ -5,7 +5,7 @@ Minimal recipe for builders who already pay HyperNatt x402 tools but have not ex
 
 **Read-only context is not trade advice. No custody.**
 
-This guide covers the swap journey. MCP v2.9.1 has **4 tools**: [complete catalog](reference.md#mcp-tools-canonical).
+This guide covers the swap journey. MCP v2.10.0 has **5 tools**: [complete catalog](reference.md#mcp-tools-canonical).
 
 ---
 
