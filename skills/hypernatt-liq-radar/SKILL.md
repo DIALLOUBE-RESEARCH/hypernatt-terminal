@@ -64,8 +64,8 @@ order execution. It does **not** instruct the agent to move funds.
 |----------|-----|
 | MCP | https://hypernatt.com/mcp/protocol |
 | Server card | https://hypernatt.com/.well-known/mcp/server-card.json |
-| Source | https://github.com/DIALLOUBERESEARCH/hypernatt-terminal |
-| Security | https://github.com/DIALLOUBERESEARCH/hypernatt-terminal/blob/main/SECURITY.md |
+| Source | https://github.com/DIALLOUBE-RESEARCH/hypernatt-terminal |
+| Security | https://github.com/DIALLOUBE-RESEARCH/hypernatt-terminal/blob/main/SECURITY.md |
 | Full 6-tool onboarding | related skill `hypernatt-terminal` |
 
 ## Tools this skill uses (market-data only)

@@ -1,6 +1,6 @@
 # GitHub Actions — hypernatt-terminal public mirror
 # Source of truth: monorepo backend/services/m2m/mcp/public-repo/.github/
-# Synced to DIALLOUBERESEARCH/hypernatt-terminal
+# Synced to DIALLOUBE-RESEARCH/hypernatt-terminal
 
 name: CI
 

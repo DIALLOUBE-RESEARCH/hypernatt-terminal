@@ -1,7 +1,7 @@
 # HyperNatt Terminal
 
-[![CI](https://github.com/DIALLOUBERESEARCH/hypernatt-terminal/actions/workflows/ci.yml/badge.svg)](https://github.com/DIALLOUBERESEARCH/hypernatt-terminal/actions/workflows/ci.yml)
-[![Glama](https://glama.ai/mcp/servers/DIALLOUBERESEARCH/hypernatt-terminal/badges/score.svg)](https://glama.ai/mcp/servers/DIALLOUBERESEARCH/hypernatt-terminal)
+[![CI](https://github.com/DIALLOUBE-RESEARCH/hypernatt-terminal/actions/workflows/ci.yml/badge.svg)](https://github.com/DIALLOUBE-RESEARCH/hypernatt-terminal/actions/workflows/ci.yml)
+[![Glama](https://glama.ai/mcp/servers/DIALLOUBE-RESEARCH/hypernatt-terminal/badges/score.svg)](https://glama.ai/mcp/servers/DIALLOUBE-RESEARCH/hypernatt-terminal)
 [![x402-list](https://x402-list.com/badge/hypernatt-terminal.svg?data=uptime)](https://x402-list.com/services/hypernatt-terminal?utm_source=badge&utm_medium=referral&utm_campaign=embed)
 [![Version](https://img.shields.io/badge/version-2.10.0-green)](./CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](./LICENSE)
@@ -9,7 +9,7 @@
 
 <p align="center">
   <sub>Research and development by</sub><br />
-  <a href="https://github.com/DIALLOUBERESEARCH">
+  <a href="https://github.com/DIALLOUBE-RESEARCH">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://hypernatt.com/brand/dialloube/logo-horizontal-blanc.svg" />
       <img src="https://hypernatt.com/brand/dialloube/logo-horizontal-bleu.svg" alt="DIALLOUBE-RESEARCH" height="18" />
@@ -25,7 +25,7 @@ Built by one person. Code is public. Backend is private. No custody. Not trade a
 
 Full HyperNatt platform (vault, assistant): https://hypernatt.com — this repo is one agent-facing brick.
 
-> Public runtime and docs are synced from the monorepo. Repository: https://github.com/DIALLOUBERESEARCH/hypernatt-terminal.
+> Public runtime and docs are synced from the monorepo. Repository: https://github.com/DIALLOUBE-RESEARCH/hypernatt-terminal.
 
 ## Quick start (30 seconds)
 

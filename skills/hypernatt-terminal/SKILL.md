@@ -67,9 +67,9 @@ Live surface = **exactly 5 tools - v2.10.0**.
 | Platform | https://hypernatt.com |
 | MCP | https://hypernatt.com/mcp/protocol |
 | Server card | https://hypernatt.com/.well-known/mcp/server-card.json |
-| Source | https://github.com/DIALLOUBERESEARCH/hypernatt-terminal |
-| Security | https://github.com/DIALLOUBERESEARCH/hypernatt-terminal/blob/main/SECURITY.md |
-| Trading-first skill | https://github.com/DIALLOUBERESEARCH/hypernatt-terminal/blob/main/skills/hypernatt-liq-radar/SKILL.md |
+| Source | https://github.com/DIALLOUBE-RESEARCH/hypernatt-terminal |
+| Security | https://github.com/DIALLOUBE-RESEARCH/hypernatt-terminal/blob/main/SECURITY.md |
+| Trading-first skill | https://github.com/DIALLOUBE-RESEARCH/hypernatt-terminal/blob/main/skills/hypernatt-liq-radar/SKILL.md |
 
 ## Tool surface (4 only)
 

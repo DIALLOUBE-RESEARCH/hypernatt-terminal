@@ -16,7 +16,7 @@ legitimate. Verify anything claiming to be HyperNatt against this list.
 **Only these channels are official:**
 
 - Website: https://hypernatt.com
-- Public code: https://github.com/DIALLOUBERESEARCH
+- Public code: https://github.com/DIALLOUBE-RESEARCH
 - MCP server: https://hypernatt.com/mcp/protocol
 - Telegram bot: https://t.me/hypernatt_bot
 - Contact: contact@hypernatt.com
@@ -70,7 +70,7 @@ security audit and cannot establish that a system is unhackable.
 
 ## How do I verify all this?
 
-- **Read the source** — https://github.com/DIALLOUBERESEARCH/hypernatt-terminal
+- **Read the source** — https://github.com/DIALLOUBE-RESEARCH/hypernatt-terminal
 - **Free catalog** — `curl -s https://hypernatt.com/api/m2m/agent/manifest`
 - **Real 402** — `curl -i https://hypernatt.com/api/m2m/liq-radar`
 - **Networks** — `curl -s https://hypernatt.com/.well-known/x402`

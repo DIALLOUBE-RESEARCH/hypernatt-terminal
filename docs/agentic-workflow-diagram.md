@@ -143,7 +143,7 @@ sequenceDiagram
 |----------|-----|
 | MCP endpoint | https://hypernatt.com/mcp/protocol |
 | Server card | https://hypernatt.com/.well-known/mcp/server-card.json |
-| Repo | https://github.com/DIALLOUBERESEARCH/hypernatt-terminal |
+| Repo | https://github.com/DIALLOUBE-RESEARCH/hypernatt-terminal |
 | Loom (application) | https://www.loom.com/share/618c17521a964a60a6b6605c196a6460 |
 
 ---

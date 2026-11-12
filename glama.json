@@ -2,7 +2,7 @@
   "name": "hypernatt-terminal",
   "displayName": "HyperNatt Terminal - Radar, Native Depth + Swap for AI Agents",
   "homepage": "https://hypernatt.com",
-  "description": "HyperNatt Terminal: liquidation radar (7 tokens), recorded liquidity, fixed-price wall history and observed aggressor flow for BTC and ETH, and Li.Fi cross-chain swap for AI agents, plus a free catalog of the sealed historical L2 archive (get_l2_archive_catalog). Radar whitelist BTC ETH SOL BNB XRP HYPE ZEC. Native depth is BTC and ETH only. Read-only data, not a trade signal, no custody or order submission. 5 tools, v2.10.0; call get_agent_manifest first. Radar and native-depth calls cost 0.001 USDC via x402 Base/Solana or eligible credits; manifest and MCP swap quote are free (on-chain swap fees apply). Full platform: https://hypernatt.com. Docs: github.com/DIALLOUBERESEARCH/hypernatt-terminal.",
+  "description": "HyperNatt Terminal: liquidation radar (7 tokens), recorded liquidity, fixed-price wall history and observed aggressor flow for BTC and ETH, and Li.Fi cross-chain swap for AI agents, plus a free catalog of the sealed historical L2 archive (get_l2_archive_catalog). Radar whitelist BTC ETH SOL BNB XRP HYPE ZEC. Native depth is BTC and ETH only. Read-only data, not a trade signal, no custody or order submission. 5 tools, v2.10.0; call get_agent_manifest first. Radar and native-depth calls cost 0.001 USDC via x402 Base/Solana or eligible credits; manifest and MCP swap quote are free (on-chain swap fees apply). Full platform: https://hypernatt.com. Docs: github.com/DIALLOUBE-RESEARCH/hypernatt-terminal.",
   "url": "https://hypernatt.com/mcp/protocol",
-  "repository": "https://github.com/DIALLOUBERESEARCH/hypernatt-terminal"
+  "repository": "https://github.com/DIALLOUBE-RESEARCH/hypernatt-terminal"
 }

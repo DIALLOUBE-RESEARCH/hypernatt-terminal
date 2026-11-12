@@ -480,10 +480,12 @@ export function createMcpServer() {
     server.registerTool(
         "get_liq_radar",
         {
+            // F#645: purpose first, F#132 cluster_grammar rule in the first lines, terms defined, siblings named.
             description: toolDescriptionFromCard(
                 "get_liq_radar",
-                "If cluster_grammar is present, read it before liq_radar. class=noise (<3%) is bait. class=true (~7%+) is the low-leverage stack. Terrain, not a signal. Whitelist BTC ETH SOL BNB XRP HYPE ZEC (omit=BTC).",
+                "Returns the liquidation map of one coin (BTC, ETH, SOL, BNB, XRP, HYPE or ZEC; default BTC). If cluster_grammar is present, read it first: class=noise (distance <3%) is high-leverage bait to ignore; class=true (~7%+) is the low-leverage stack. The liq_radar block (hypernatt_liq_radar_v2) holds modeled liquidation clusters (zones where leveraged positions may liquidate), observed real_liquidations, open interest (OI) and long/short (L/S) context, and magnet.score (directional density bias from OI, L/S and funding; not a hit probability). USE WHEN an agent needs liquidation terrain for timing or sizing. NOT WHEN it needs order-book depth for a BTC/ETH size (use get_native_depth) or a swap (use swap_via_nattswap). Read-only; terrain, not a trade signal. Price: 0.001 USDC/call via x402 (Base or Solana) or eligible credits.",
             ),
+            annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
             inputSchema: {
                 x_payment: z
                     .string()

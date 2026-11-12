@@ -128,7 +128,7 @@ Restart gateway or CLI after editing config. Enable MCP toolset (`native-mcp`).
 Optional skill:
 
 ```bash
-hermes skills install github/DIALLOUBERESEARCH/hypernatt-terminal/skills/hypernatt-terminal
+hermes skills install github/DIALLOUBE-RESEARCH/hypernatt-terminal/skills/hypernatt-terminal
 ```
 
 Skill path: [../skills/hypernatt-terminal/SKILL.md](../skills/hypernatt-terminal/SKILL.md)

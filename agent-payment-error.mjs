@@ -58,7 +58,7 @@ export function buildAgentPaymentRequiredBlock(input) {
         ? [
               "Call get_agent_manifest and read wallet_onboarding_v1 under Execution",
               "Use swap_via_nattswap MCP with YOUR agent wallet as fromAddress (not a vault address)",
-              "https://github.com/DIALLOUBERESEARCH/hypernatt-terminal/blob/main/docs/swap-agentkit.md",
+              "https://github.com/DIALLOUBE-RESEARCH/hypernatt-terminal/blob/main/docs/swap-agentkit.md",
               "After on-chain swap: POST /api/m2m/swap/register for quota credits",
           ]
         : [

@@ -12,8 +12,8 @@ Current journeys: [native depth](../docs/native-depth.md), [liquidation terrain]
 ## Install (Hermes)
 
 ```bash
-hermes skills install github/DIALLOUBERESEARCH/hypernatt-terminal/skills/hypernatt-liq-radar
-hermes skills install github/DIALLOUBERESEARCH/hypernatt-terminal/skills/hypernatt-terminal
+hermes skills install github/DIALLOUBE-RESEARCH/hypernatt-terminal/skills/hypernatt-liq-radar
+hermes skills install github/DIALLOUBE-RESEARCH/hypernatt-terminal/skills/hypernatt-terminal
 ```
 
 ## Install (OpenClaw / ClawHub)
