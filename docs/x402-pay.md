@@ -15,7 +15,7 @@ Call `get_agent_manifest` with `{"detail":"full"}`, or GET `/api/m2m/agent/manif
 
 On MCP, call the intended tool without `x_payment` first. If a trial or eligible credit covers it, no x402 payment is needed. Otherwise, payment requirements arrive in the tool result (`isError: true`, JSON text with `accepts[]`); the HTTP transport can still return 200. An x402-capable client must inspect that result, obtain the authorized payment and retry the same tool with `x_payment` (base64 JSON).
 
-Direct REST discovery calls to `/api/m2m/liq-radar` and `/api/m2m/swap/quote` return HTTP 402 when unpaid and without eligible access; they do not provide the MCP intro slots. Retry REST with `X-Payment` or `PAYMENT-SIGNATURE`. Native depth is also available as MCP and as `GET /api/m2m/native-depth/quote`. A connector or wallet installation alone does not guarantee automatic payment support in every client.
+Direct REST calls to `/api/m2m/liq-radar`, `/api/m2m/swap/quote` and `/api/m2m/native-depth/quote` return HTTP 402 when unpaid and without eligible access; they do not provide the MCP intro slots. Retry REST with `X-Payment` or `PAYMENT-SIGNATURE`. Native depth over REST takes a JSON body on POST, or the same fields as URL parameters on GET (`?symbol=ETH&side=buy&quantity_base=0.1&lookback_s=300`); invalid input answers 400 before any settlement. A connector or wallet installation alone does not guarantee automatic payment support in every client.
 
 **Historical `get_liq_radar` Solana payment receipts (REST and MCP):**
 - **REST settle:** [36FvuTpq...](https://solscan.io/tx/36FvuTpqWiSoDLrs2xVRecehCmArdqptDXB8sHTfvJQSUCs7GY7CLhHwGHYwT4eXqqcgkroYheFcy5ajrUgdJLSg) (2026-09-05 UTC, slot 444415694)
@@ -49,6 +49,7 @@ If CDP returns `invalid_exact_svm_*`, `preflight_validation_failed`, `x402V2Paym
 
 ```bash
 curl -i https://hypernatt.com/api/m2m/liq-radar
+curl -i "https://hypernatt.com/api/m2m/native-depth/quote?symbol=ETH&side=buy&quantity_base=0.1"
 ```
 
 Read `accepts[]`. Pay one rail. Retry with `X-Payment` **or** `PAYMENT-SIGNATURE` (base64 JSON payload).

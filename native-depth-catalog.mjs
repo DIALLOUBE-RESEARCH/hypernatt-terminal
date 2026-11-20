@@ -23,8 +23,11 @@ export function nativeDepthManifestTools() {
       price: "0.001 USD (1 credit)",
       credit_cost: 1,
       symbols: [...NATIVE_DEPTH_SYMBOLS],
-      transport: "MCP",
+      transport: "MCP+HTTP",
       endpoint: "https://hypernatt.com/mcp/protocol",
+      // F#653: pay-per-call HTTP route (F#641), same price, POST JSON or GET URL parameters.
+      http_endpoint: `https://hypernatt.com${nativeDepthHttpPath()}`,
+      http_methods: ["POST", "GET"],
     },
   ];
 }

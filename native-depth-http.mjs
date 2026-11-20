@@ -15,6 +15,39 @@ const encode = value => Buffer.from(JSON.stringify(value)).toString('base64');
 const errorResult = value => ({ isError: true, structuredContent: value });
 
 /**
+ * F#653 — every refused payment is counted with its reason (payment_invalid, which feeds the same
+ * Telegram alert as liq-radar), never as a plain 402_shown. Never stores the signature or the payload.
+ */
+export const PAYMENT_REFUSAL_CODES = new Set(['invalid_payment', 'unsupported_network', 'payment_mismatch', 'amount_mismatch', 'resource_mismatch']);
+const clientSource = req => String(req.get('user-agent') || '').slice(0, 180) || null;
+const safeField = value => (typeof value === 'string' || typeof value === 'number')
+  ? String(value).replace(/[^\w:.\-]/g, '?').slice(0, 64) : 'none';
+const safePayer = payment => { try { return extractPayerWallet(payment) || null; } catch { return null; } };
+
+export function refusalReason(error) {
+  if (PAYMENT_REFUSAL_CODES.has(error?.message)) return error.message;
+  if (typeof error?.field === 'string') return `svm_${safeField(error.field)}_mismatch`;
+  return 'invalid_format';
+}
+
+export function describeRefusedPayment(raw, product) {
+  let payment = null;
+  try { payment = product.parsePaymentHeader(raw); } catch { payment = null; }
+  const record = payment && typeof payment === 'object' && !Array.isArray(payment) ? payment : null;
+  const accepted = record && record.accepted && typeof record.accepted === 'object' ? record.accepted : null;
+  const network = accepted?.network ?? record?.network;
+  return {
+    detail: `x402Version=${safeField(record?.x402Version)}; network=${safeField(network)}`,
+    network: typeof network === 'string' ? network.slice(0, 64) : null,
+    payer_wallet: record ? safePayer(record) : null,
+  };
+}
+
+function paidUnavailable(code) {
+  try { console.warn(JSON.stringify({ event: 'native_depth_paid_unavailable', code: safeField(code) })); } catch { /* diagnostics never block */ }
+}
+
+/**
  * F#641 — x402 Bazaar discovery block (shape of @x402/extensions createBodyDiscoveryExtension, POST + JSON body).
  * Without it the CDP discovery catalog never indexes this route. The body schema mirrors httpNativeDepthSchema.
  */
@@ -124,30 +157,47 @@ export function createNativeDepthHttpRouter(ctx, deps = {}) {
       extensions: { ...(body.extensions || {}), bazaar: nativeDepthBazaar() },
       instructions: 'POST the tool arguments as JSON (or GET with the same fields as URL parameters: symbol, side, quantity_base, lookback_s) with PAYMENT-SIGNATURE (or X-Payment). HTTP is pay-per-call; MCP trials and credits remain available through the MCP connection.' };
   };
-  const challenge = (res, error) => {
+  const challenge = (req, res, error, refusal) => {
     const body = required(error);
     res.set('PAYMENT-REQUIRED', encode(body));
-    event({ event_type: '402_shown', tool: name, price_usdc: product.priceUsdc });
+    event(refusal
+      ? { event_type: 'payment_invalid', tool: name, price_usdc: product.priceUsdc, client_source: clientSource(req), ...refusal }
+      : { event_type: '402_shown', tool: name, price_usdc: product.priceUsdc, client_source: clientSource(req) });
     return res.status(402).json(body);
+  };
+  const refuseArguments = (req, res, reason, detail) => {
+    const paid = res.locals.httpPayment;
+    if (paid) event({ event_type: 'payment_invalid', tool: name, price_usdc: product.priceUsdc, client_source: clientSource(req),
+      facilitator_error: reason, detail, network: paid.serverRequirements.network, payer_wallet: safePayer(paid.paymentPayload) });
   };
   router.all('/quote', (req, res, next) => {
     res.set('Cache-Control', 'private, no-store');
     if (!['POST', 'GET', 'HEAD'].includes(req.method)) return res.set('Allow', 'POST, GET, HEAD').status(405).json({ error: 'method_not_allowed' });
-    if (!ready()) return res.status(503).json({ error: 'native_depth_unavailable' });
     const modern = req.get('PAYMENT-SIGNATURE'); const legacy = req.get('X-Payment');
+    if (!ready()) {
+      if (modern || legacy) paidUnavailable('gate_closed');
+      return res.status(503).json({ error: 'native_depth_unavailable' });
+    }
     if (modern && legacy && modern !== legacy) return res.status(400).json({ error: 'conflicting_payment_headers' });
     const raw = modern || legacy;
-    if (req.method === 'HEAD' || !raw) return challenge(res);
+    if (req.method === 'HEAD' || !raw) return challenge(req, res);
     try { res.locals.httpPayment = selectHttpPayment(raw, product); }
-    catch { return challenge(res, 'Invalid payment payload or payment requirements'); }
+    catch (error) {
+      return challenge(req, res, 'Invalid payment payload or payment requirements',
+        { facilitator_error: refusalReason(error), ...describeRefusedPayment(raw, product) });
+    }
     next();
   }, express.json({ limit: '1mb' }), async (req, res) => {
     const parsed = httpNativeDepthSchema.safeParse(req.method === 'GET' ? nativeDepthArgsFromQuery(req.query) : req.body);
-    if (!parsed.success) return res.status(400).json({ error: 'invalid_arguments', issues: parsed.error.issues.map(i => ({ path: i.path, code: i.code })) });
+    if (!parsed.success) {
+      const fields = [...new Set(parsed.error.issues.map(i => safeField(i.path[0] ?? 'body')))].join(',').slice(0, 120);
+      refuseArguments(req, res, 'invalid_arguments', `fields=${fields}`);
+      return res.status(400).json({ error: 'invalid_arguments', issues: parsed.error.issues.map(i => ({ path: i.path, code: i.code })) });
+    }
     const controller = new AbortController();
     const cancel = () => { if (!res.writableEnded) controller.abort(); };
     res.on('close', cancel);
-    let callback; let receipt;
+    let callback; let receipt; let refusal;
     registerNativeDepthTool({ registerTool: (toolName, _config, handler) => { if (toolName === name) callback = handler; } }, {
       ...ctx, resourceUrl: urlFor(),
       pay: async ({ beforeCharge }) => {
@@ -156,7 +206,11 @@ export function createNativeDepthHttpRouter(ctx, deps = {}) {
         if (controller.signal.aborted) throw Error('cancelled');
         const { paymentPayload, serverRequirements } = res.locals.httpPayment;
         const settled = await settle({ paymentPayload, serverRequirements });
-        if (!settled.ok) return { errorResult: errorResult(required('Payment rejected or already used')) };
+        if (!settled.ok) {
+          refusal = { facilitator_error: String(settled.error || settled.reason || 'settlement_failed').slice(0, 500),
+            detail: `settlement=${safeField(settled.reason)}`, network: serverRequirements.network, payer_wallet: safePayer(paymentPayload) };
+          return { errorResult: errorResult(required('Payment rejected or already used')) };
+        }
         receipt = { success: true, transaction: settled.txHash ?? '', network: serverRequirements.network, payer: extractPayerWallet(paymentPayload) ?? '' };
         event({ event_type: 'payment_settled', tool: name, price_usdc: product.priceUsdc,
           network: receipt.network, payer_wallet: receipt.payer, tx_hash: settled.txHash ?? null });
@@ -168,19 +222,27 @@ export function createNativeDepthHttpRouter(ctx, deps = {}) {
       if (controller.signal.aborted) return;
       const body = out.structuredContent;
       if (out.isError || !receipt) {
-        if (body?.accepts) return challenge(res, body.error);
+        if (body?.accepts) return challenge(req, res, body.error, refusal);
         const code = body?.error || 'native_depth_unavailable';
         const status = code === 'unsupported_symbol' || code === 'invalid_request' ? 400 : 503;
+        if (status === 503) paidUnavailable(code);
         return res.status(status).json({ ok: false, error: code });
       }
       res.set('PAYMENT-RESPONSE', encode(receipt));
       res.set('X-Payment-Response', encode(receipt));
       return res.json(body);
     } catch {
-      if (!controller.signal.aborted) return res.status(503).json({ error: 'native_depth_unavailable' });
+      if (!controller.signal.aborted) {
+        paidUnavailable('exception');
+        return res.status(503).json({ error: 'native_depth_unavailable' });
+      }
     } finally { res.off('close', cancel); }
   });
   router.use((_req, res) => res.status(404).json({ error: 'unknown_operation' }));
-  router.use((error, _req, res, _next) => res.status(error.type === 'entity.too.large' ? 413 : 400).json({ error: error.type === 'entity.too.large' ? 'input_too_large' : 'invalid_json' }));
+  router.use((error, req, res, _next) => {
+    const code = error.type === 'entity.too.large' ? 'input_too_large' : 'invalid_json';
+    refuseArguments(req, res, code, 'body');
+    return res.status(code === 'input_too_large' ? 413 : 400).json({ error: code });
+  });
   return router;
 }
