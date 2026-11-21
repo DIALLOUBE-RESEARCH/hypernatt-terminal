@@ -16,6 +16,32 @@ function result(value, error = false) {
   return { content: [{ type: "text", text: JSON.stringify(value) }], structuredContent: value, ...(error ? { isError: true } : {}) };
 }
 
+/**
+ * F#654 — measured 20/11 (300 preparations, 10 min): the readable same-time book refreshes about every 12.4 s and
+ * sometimes skips one (24.9 s), while the freshness window is 15 s, so ~15 % of calls met a stale book (503).
+ * A preparation that fails ONLY because the book is too old now waits for the next recorded book, before any
+ * payment: a new preparation every FRESH_POLL_MS, for at most FRESH_WAIT_MS (longest measured wait 14.4 s +
+ * one poll + one slow preparation). Any other error is never retried.
+ */
+export const STALE_LIMIT_MS = 15000;
+export const FRESH_WAIT_MS = 20000;
+export const FRESH_POLL_MS = 2000;
+
+export function isStaleOnly(response, now = Date.now()) {
+  if (response?.ok === false) return response.error === 'native_depth_stale';
+  const bookTime = response?.result?.quality?.book_time_ms;
+  return response?.ok === true && Number.isSafeInteger(bookTime) && now - bookTime > STALE_LIMIT_MS;
+}
+
+export function pauseUnlessAborted(ms, signal) {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) return reject(new Error('cancelled'));
+    const onAbort = () => { clearTimeout(timer); reject(new Error('cancelled')); };
+    const timer = setTimeout(() => { signal?.removeEventListener?.('abort', onAbort); resolve(); }, ms);
+    signal?.addEventListener?.('abort', onAbort, { once: true });
+  });
+}
+
 export function assertNativeDepthPrepared(response, now = Date.now()) {
   const value = response?.result;
   const quality = value?.quality;
@@ -26,7 +52,7 @@ export function assertNativeDepthPrepared(response, now = Date.now()) {
       value.schema_version !== 'hypernatt_native_depth_v2' || value.source !== 'recorder_REF' ||
       value.not_a_signal !== true || quality?.source_kind !== 'recorded_market_data' ||
       quality.evaluation_mode !== 'live' || quality.stale !== false ||
-      !Number.isSafeInteger(quality.book_time_ms) || age < -250 || age > 15000 ||
+      !Number.isSafeInteger(quality.book_time_ms) || age < -250 || age > STALE_LIMIT_MS ||
       !Array.isArray(views) || views.length !== 4 ||
       views.some((view, i) => view.view !== ['REF', 'M2', 'M5', 'AGG4'][i] || view.book_time_ms !== quality.book_time_ms)) {
     throw new Error('native_depth_unavailable');
@@ -63,21 +89,30 @@ export function registerNativeDepthTool(server, ctx) {
     if (!ctx.internalSecret) return result({ ok: false, error: "native_depth_unavailable" }, true);
     const { x_payment, agent_wallet, ...args } = input;
     let prepared;
+    const prepareOnce = async () => ctx.prepare ? await ctx.prepare(args, extra.signal) : (await axios.post(
+      `${ctx.m2mUrl.replace(/\/$/, "")}/api/m2m/internal/native-depth`,
+      args,
+      {
+        headers: { "X-M2M-Internal-Secret": ctx.internalSecret },
+        timeout: 8000,
+        signal: extra.signal,
+        maxBodyLength: 1024 * 1024,
+        maxContentLength: 2 * 1024 * 1024,
+        validateStatus: () => true,
+      },
+    )).data;
     const beforeCharge = async () => {
       if (prepared) return;
       if (extra.signal?.aborted) throw new Error("cancelled");
-      const response = ctx.prepare ? await ctx.prepare(args, extra.signal) : (await axios.post(
-        `${ctx.m2mUrl.replace(/\/$/, "")}/api/m2m/internal/native-depth`,
-        args,
-        {
-          headers: { "X-M2M-Internal-Secret": ctx.internalSecret },
-          timeout: 8000,
-          signal: extra.signal,
-          maxBodyLength: 1024 * 1024,
-          maxContentLength: 2 * 1024 * 1024,
-          validateStatus: () => true,
-        },
-      )).data;
+      const waitMs = ctx.freshWaitMs ?? FRESH_WAIT_MS;
+      const pollMs = ctx.freshPollMs ?? FRESH_POLL_MS;
+      const deadline = Date.now() + waitMs;
+      let response = await prepareOnce();
+      // F#654: only an expired book is worth waiting for; the next recorded one arrives within the window.
+      while (isStaleOnly(response) && Date.now() + pollMs <= deadline) {
+        await pauseUnlessAborted(pollMs, extra.signal);
+        response = await prepareOnce();
+      }
       if (extra.signal?.aborted) throw new Error("cancelled");
       if (response?.error === "unsupported_symbol" || response?.error === "invalid_request") {
         const err = new Error(response.error);
