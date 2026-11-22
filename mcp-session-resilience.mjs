@@ -68,6 +68,58 @@ export function respondStaleSession(res, sessionId) {
     res.status(staleSessionHttpStatus()).json(buildStaleSessionBody(sessionId));
 }
 
+/** Health report 22/11/2026: Streamable HTTP sessions idle longer than this are closed (default 30 min). */
+export const DEFAULT_SESSION_IDLE_MS = 30 * 60 * 1000;
+
+/** How often the idle sweep runs (5 min). */
+export const DEFAULT_SESSION_SWEEP_MS = 5 * 60 * 1000;
+
+/**
+ * MCP_SESSION_IDLE_MINUTES (5..1440), else 30 minutes.
+ *
+ * @param {Record<string, string | undefined>} [env]
+ */
+export function sessionIdleMsFromEnv(env = process.env) {
+    const n = parseInt(String(env.MCP_SESSION_IDLE_MINUTES ?? ""), 10);
+    if (!Number.isFinite(n) || n <= 0) {
+        return DEFAULT_SESSION_IDLE_MS;
+    }
+    return Math.min(24 * 60, Math.max(5, n)) * 60 * 1000;
+}
+
+/**
+ * @param {Map<string, number>} lastActivity
+ * @param {unknown} sessionId
+ * @param {number} [now]
+ */
+export function touchSession(lastActivity, sessionId, now = Date.now()) {
+    if (sessionId === undefined || sessionId === null) {
+        return;
+    }
+    const id = String(sessionId).trim();
+    if (id) {
+        lastActivity.set(id, now);
+    }
+}
+
+/**
+ * Sessions whose last request is older than idleMs.
+ *
+ * @param {Map<string, number>} lastActivity
+ * @param {number} now
+ * @param {number} idleMs
+ * @returns {string[]}
+ */
+export function findIdleSessions(lastActivity, now, idleMs) {
+    const idle = [];
+    for (const [id, at] of lastActivity) {
+        if (now - at > idleMs) {
+            idle.push(id);
+        }
+    }
+    return idle;
+}
+
 export function recordSessionCreated() {
     stats.created += 1;
 }
@@ -93,6 +145,7 @@ export function getMcpSessionStats() {
         sessions_closed_total: stats.closed,
         stale_rejected_total: stats.staleRejected,
         close_reasons: { ...stats.closeReasons },
+        idle_timeout_minutes: sessionIdleMsFromEnv() / 60000,
     };
 }
 

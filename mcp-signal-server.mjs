@@ -50,10 +50,14 @@ import { registerNativeDepthTool } from "./native-depth-public.mjs";
 import { NATIVE_DEPTH_NAMES } from "./native-depth-catalog.mjs";
 import {
     bindActiveSessionCounter,
+    DEFAULT_SESSION_SWEEP_MS,
+    findIdleSessions,
     isStaleMcpSession,
     recordSessionClosed,
     recordSessionCreated,
     respondStaleSession,
+    sessionIdleMsFromEnv,
+    touchSession,
 } from "./mcp-session-resilience.mjs";
 
 const TERMINAL_VERSION = "2.10.0";
@@ -98,6 +102,12 @@ const sessionClientKeys = new Map();
 const transports = new Map();
 
 bindActiveSessionCounter(() => transports.size);
+
+/** sessionId -> last request time (ms), Streamable HTTP sessions only */
+const sessionLastActivity = new Map();
+
+/** Streamable HTTP sessions being closed by the idle sweep */
+const idleClosing = new Set();
 
 function advertisedFreeDailyCap() {
     if (process.env.X402_FREE_TIER_ENABLED === "false") {
@@ -612,7 +622,36 @@ export function ensureStreamableHttpAccept(req) {
 /**
  * @param {import('express').Express} app
  */
+let idleSweepTimer = null;
+
+/** Health report 22/11/2026: close Streamable HTTP sessions left open by clients that never send DELETE. */
+function startIdleSessionSweep() {
+    if (idleSweepTimer) {
+        return;
+    }
+    const idleMs = sessionIdleMsFromEnv();
+    idleSweepTimer = setInterval(() => {
+        for (const id of findIdleSessions(sessionLastActivity, Date.now(), idleMs)) {
+            sessionLastActivity.delete(id);
+            const transport = transports.get(id);
+            if (!(transport instanceof StreamableHTTPServerTransport)) {
+                continue;
+            }
+            idleClosing.add(id);
+            transport.close().catch((err) => {
+                idleClosing.delete(id);
+                console.warn(
+                    "[MCP Terminal] idle session close failed:",
+                    err instanceof Error ? err.message : String(err),
+                );
+            });
+        }
+    }, DEFAULT_SESSION_SWEEP_MS);
+    idleSweepTimer.unref?.();
+}
+
 export function mountMcpSignalRoutes(app) {
+    startIdleSessionSweep();
     app.get("/.well-known/mcp/server-card.json", (_req, res) => {
         const card = getServerCard();
         if (card) {
@@ -720,6 +759,7 @@ export function mountMcpSignalRoutes(app) {
                     });
                     return;
                 }
+                touchSession(sessionLastActivity, sessionId);
                 await transport.handleRequest(req, res, req.body);
                 return;
             }
@@ -738,6 +778,7 @@ export function mountMcpSignalRoutes(app) {
                     sessionIdGenerator: () => crypto.randomUUID(),
                     onsessioninitialized: (id) => {
                         transports.set(id, transport);
+                        touchSession(sessionLastActivity, id);
                         recordSessionCreated();
                         capturePaymentHeader(req, id);
                         sessionClientMeta.set(id, {
@@ -761,7 +802,12 @@ export function mountMcpSignalRoutes(app) {
                         sessionPayments.delete(transport.sessionId);
                         sessionClientMeta.delete(transport.sessionId);
                         removeSessionClient(sessionClientKeys, transport.sessionId);
-                        recordSessionClosed("streamable_transport_close");
+                        sessionLastActivity.delete(transport.sessionId);
+                        recordSessionClosed(
+                            idleClosing.delete(transport.sessionId)
+                                ? "idle_timeout"
+                                : "streamable_transport_close",
+                        );
                     }
                 };
                 const server = createMcpServer();
