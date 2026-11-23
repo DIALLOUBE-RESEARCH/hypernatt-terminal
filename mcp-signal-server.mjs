@@ -65,7 +65,6 @@ const TERMINAL_VERSION = "2.10.0";
 const M2M_URL = process.env.M2M_SERVICE_URL || "http://m2m-service:8010";
 const INTERNAL_SECRET =
     process.env.M2M_INTERNAL_SECRET ||
-    process.env.NATTSQUARE_INTERNAL_SECRET ||
     "";
 const PUBLIC_LIQ_RADAR_URL =
     process.env.PUBLIC_LIQ_RADAR_URL ||
@@ -75,19 +74,6 @@ import { toolDescriptionFromCard, getServerCard } from "./server-card-tools.mjs"
 
 const SERVER_TITLE =
     "HyperNatt Terminal — Radar, Native Depth + Swap for AI Agents";
-
-const TERMINAL_ONCHAIN_PROOF = {
-    ndatToken: {
-        address: "0x7601550Ce343B8EC89ecC973987d68b938Bd77dd",
-        basescan:
-            "https://basescan.org/token/0x7601550Ce343B8EC89ecC973987d68b938Bd77dd",
-    },
-    anchorContract: {
-        address: "0x920cCEa3BeED76DD7ebC2d3da2cFcDAAa323AcF7",
-        basescan:
-            "https://basescan.org/address/0x920cCEa3BeED76DD7ebC2d3da2cFcDAAa323AcF7",
-    },
-};
 
 /** sessionId -> X-Payment header captured from HTTP POST */
 const sessionPayments = new Map();
@@ -474,7 +460,6 @@ export function createMcpServer() {
     const freeCtx = {
         m2mUrl: M2M_URL,
         internalSecret: INTERNAL_SECRET,
-        onchainProof: TERMINAL_ONCHAIN_PROOF,
     };
     registerGrowthTools(server, freeCtx);
     registerTerminalSwapTools(server, freeCtx);
@@ -541,7 +526,7 @@ export function createMcpServer() {
 
             if (!INTERNAL_SECRET) {
                 return jsonToolResult(
-                    { error: "MCP server missing NATTSQUARE_INTERNAL_SECRET" },
+                    { error: "MCP server missing M2M_INTERNAL_SECRET" },
                     true,
                 );
             }

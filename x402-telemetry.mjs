@@ -11,7 +11,6 @@ import bs58 from "bs58";
 const M2M_URL = process.env.M2M_SERVICE_URL || "http://m2m-service:8010";
 const INTERNAL_SECRET =
     process.env.M2M_INTERNAL_SECRET ||
-    process.env.NATTSQUARE_INTERNAL_SECRET ||
     "";
 const TELEMETRY_ENABLED = process.env.M2M_X402_TELEMETRY_ENABLED !== "false";
 

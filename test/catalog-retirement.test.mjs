@@ -27,16 +27,14 @@ async function start(t) {
     return `http://127.0.0.1:${server.address().port}`;
 }
 
-it('SDK discovery removes obsolete recommendations and preserves the current SDK', async t => {
+it('the legacy REST catalog keeps only swap and referral tools, without on-chain token blocks', async t => {
     const base = await start(t);
-    const response = await fetch(`${base}/tools/get_sdk_info`, { method: 'POST' });
-    assert.equal(response.status, 200);
-    const body = await response.json();
-    assert.deepEqual(Object.keys(body).sort(), ['license', 'nattdata_sdk', 'supportedChains', 'verification']);
-    assert.equal(body.nattdata_sdk.python.install, 'pip install nattdata');
-    assert.equal(body.nattdata_sdk.typescript.install, 'npm install nattdata-sdk');
-    assert.equal(body.license, 'MIT');
-    assert.ok(body.verification.ndatToken.address);
+    for (const name of ['get_sdk_info', 'get_contracts', 'get_whitepaper', 'get_mimo_cycles', 'get_agent_balance']) {
+        const response = await fetch(`${base}/tools/${name}`, { method: 'POST' });
+        assert.equal(response.status, 404, name);
+    }
+    const listing = await (await fetch(`${base}/tools`)).json();
+    assert.deepEqual(Object.keys(listing).sort(), ['mcp', 'server', 'tools', 'version']);
 });
 
 it('the actual HTTP catalog lists the five Terminal tools', async t => {
@@ -58,7 +56,7 @@ it('only the configured JavaScript server remains', () => {
     assert.equal(existsSync(new URL('../server.ts', import.meta.url)), false);
 });
 
-for (const name of ['claim', 'cycles', 'ndat', 'swap']) {
+for (const name of ['claim', 'cycles', 'swap']) {
     it(`the unreferenced ${name} TypeScript wrapper is absent`, () => {
         assert.equal(existsSync(new URL(`../tools/${name}.ts`, import.meta.url)), false);
     });

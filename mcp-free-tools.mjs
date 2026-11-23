@@ -67,7 +67,7 @@ function rejectInvalidSwapParams(params) {
  * Register free swap tool on MCP server (F99N: swap_via_nattswap only).
  */
 export function registerTerminalSwapTools(server, ctx) {
-    const { m2mUrl, internalSecret, onchainProof } = ctx;
+    const { m2mUrl, internalSecret } = ctx;
 
     server.registerTool(
         "swap_via_nattswap",
@@ -94,7 +94,7 @@ export function registerTerminalSwapTools(server, ctx) {
                 const payload = {
                     ok: true,
                     source: "hypernatt-terminal",
-                    data: { ...data, verification: onchainProof },
+                    data,
                 };
                 return toolTextResult(payload);
             } catch (err) {
